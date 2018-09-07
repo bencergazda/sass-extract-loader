@@ -1,5 +1,6 @@
 const sassExtract = require('sass-extract');
 const loaderUtils = require('loader-utils');
+const proxyCustomImporters = require('sass-loader/lib/proxyCustomImporters');
 const path = require('path');
 
 function normalizeDependency(dep) {
@@ -16,6 +17,9 @@ module.exports = exports = function sassExtractLoader(content) {
 
   const query = loaderUtils.getOptions(this);;
   const plugins = (query ? query.plugins : []) || [];
+
+  // Passing loader context to the importers
+	query.importer = query.importer ? proxyCustomImporters(query.importer, this.resourcePath, this) : [];
 
   return sassExtract.render(Object.assign({}, query, { file: this.resourcePath }), { plugins })
   .then(rendered => {
